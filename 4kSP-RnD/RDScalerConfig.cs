@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 
-namespace FourkSP
+namespace _4kSP_RnD
 {
     // Persists the R&D patch parameters to
     // GameData/4kSP/PluginData/RDScaler.cfg using KSP's native

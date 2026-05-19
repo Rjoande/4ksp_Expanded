@@ -1,9 +1,10 @@
+#if true
 using System;
 using HarmonyLib;
 using KSP.UI.Screens;
 using UnityEngine;
 
-namespace FourkSP
+namespace _4kSP_RnD
 {
     // Harmony patch bootstrap. Runs once at MainMenu.
     //
@@ -82,3 +83,4 @@ namespace FourkSP
         }
     }
 }
+#endif

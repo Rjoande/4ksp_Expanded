@@ -5,7 +5,7 @@ using KSP.UI.Screens;
 using ToolbarControl_NS;
 using ClickThroughFix;
 
-namespace FourkSP
+namespace _4kSP_RnD
 {
     // Scales the R&D Complex UI for high-DPI monitors:
     //   1) raises the tech tree zoom cap (UIGridArea.zoomMax)

@@ -1,9 +1,14 @@
 Changelog
 
-0.1.2.8
+0.2.2.0
+	Thanks to github user @davtur19 for this:
+		Added R&D scene scaler
+	Note:  submitted code was moved into new DLL because of limited Harmony dependency
+
+0.2.1.8
 	Updated README
 
-0.1.2.7
+0.2.1.7
 	version file update
 
 0.2.1.6
