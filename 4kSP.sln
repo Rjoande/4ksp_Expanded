@@ -19,7 +19,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4kSP-RnD", "4kSP-RnD\4kSP-RnD.csproj", "{B5706523-0B4F-4229-A7F3-1435A342C1D7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4kSP-ModWindows", "4kSP-ModWindows\4kSP-ModWindows.csproj", "{9E2A5C41-7B3D-4F1E-8A6C-5D2F9B0E4C17}"
-EndProjectGlobal
+EndProject
+Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
