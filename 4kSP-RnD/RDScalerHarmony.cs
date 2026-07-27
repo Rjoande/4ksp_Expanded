@@ -64,6 +64,10 @@ namespace _4kSP_RnD
         {
             try
             {
+                // Scaler turned off in Difficulty Settings: leave new tiles
+                // at their stock scale, don't fight ResetToStock().
+                if (!RDSceneScaler.ScalerEnabled) return;
+
                 if (__instance == null) return;
                 var items = __instance.listItems;
                 if (items == null || items.Count == 0) return;
