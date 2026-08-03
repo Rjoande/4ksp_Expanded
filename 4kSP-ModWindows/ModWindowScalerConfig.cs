@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using FourkSP;
 using UnityEngine;
 
 namespace _4kSP_ModWindows
@@ -31,6 +32,22 @@ namespace _4kSP_ModWindows
         public static float CurrentScale()
         {
             return UseStockUIScale ? GameSettings.UI_SCALE : Scale;
+        }
+
+        // Combines the global on/off switch above (this cfg file, applies
+        // pre-game-load too, e.g. MainMenu) with the per-save Difficulty
+        // Settings toggle (FourkSP._4kSP.modWindowScalerEnabled, only
+        // meaningful once a game is loaded). Both must be true for windows
+        // to be scaled. This is what Patch_IMGUI_Window actually checks.
+        public static bool EffectiveEnabled
+        {
+            get
+            {
+                if (!Enabled) return false;
+                Game game = HighLogic.CurrentGame;
+                if (game == null) return true;
+                return game.Parameters.CustomParams<_4kSP>().modWindowScalerEnabled;
+            }
         }
 
         public static float ScaleFor(string assemblyName)
