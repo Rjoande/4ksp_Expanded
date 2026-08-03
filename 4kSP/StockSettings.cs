@@ -44,6 +44,17 @@ namespace FourkSP
             toolTip = "Scale the R&D Complex tech tree parts list for high-DPI displays")]
         public bool rdScalerEnabled = true;
 
+        // Same idea as rdScalerEnabled, for the mod-window scaler
+        // (4kSP-ModWindows.dll). Read by Patch_IMGUI_Window via
+        // ModWindowScalerConfig.EffectiveEnabled - unlike the R&D scaler,
+        // it needs no "undo" step: the scale is a GUI.matrix set and
+        // restored within the same OnGUI call, never left applied between
+        // frames, so turning this off simply stops it from being set on
+        // the next frame.
+        [GameParameters.CustomParameterUI("Enable Mod Window Scaler",
+            toolTip = "Scale third-party mod IMGUI windows (MechJeb, WaypointManager, etc) for high-DPI displays")]
+        public bool modWindowScalerEnabled = true;
+
         public override void SetDifficultyPreset(GameParameters.Preset preset)
         {
             useStockUIScale = true;
@@ -51,11 +62,13 @@ namespace FourkSP
             //UI_LineSpacing = 1f;
             UI_FontSize = 12;
             rdScalerEnabled = true;
+            modWindowScalerEnabled = true;
         }
 
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {
-            if (member.Name == "useStockUIScale" || member.Name == "rdScalerEnabled")
+            if (member.Name == "useStockUIScale" || member.Name == "rdScalerEnabled"
+                || member.Name == "modWindowScalerEnabled")
                 return true;
             return !useStockUIScale;
         }
