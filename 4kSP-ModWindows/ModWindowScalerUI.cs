@@ -117,6 +117,11 @@ namespace _4kSP_ModWindows
         {
             GUILayout.BeginVertical();
 
+            // Only flag the Difficulty Settings toggle specifically - if
+            // the checkbox right below is what's off, that's self-evident.
+            if (ModWindowScalerConfig.Enabled && !ModWindowScalerConfig.EffectiveEnabled)
+                GUILayout.Label("<i>Disabled in Difficulty Settings (\"Enable Mod Window Scaler\").</i>");
+
             _tmpEnabled = GUILayout.Toggle(_tmpEnabled, "Enabled");
 
             _tmpUseStock = GUILayout.Toggle(_tmpUseStock, "Use stock UI Scale");

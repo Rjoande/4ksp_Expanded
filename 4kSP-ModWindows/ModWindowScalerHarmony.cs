@@ -82,7 +82,7 @@ namespace _4kSP_ModWindows
             __state.Applied = false;
             try
             {
-                if (!ModWindowScalerConfig.Enabled)
+                if (!ModWindowScalerConfig.EffectiveEnabled)
                     return;
 
                 // Already scaled by an outer call (or by the mod itself):
