@@ -1,5 +1,12 @@
 Changelog
 
+0.2.3
+	Thanks to github user @Rjoande for this:
+		Add automatic scaling to all windows.  Requires Harmony to work
+		Added new entries to the settings page to allow this to be disabled
+		Added setting to control scaling in the R&D
+		Note:  Currently customizing the config is manual, a gui-based customization is planned for a future release
+
 0.2.2.0
 	Thanks to github user @davtur19 for this:
 		Added R&D scene scaler
