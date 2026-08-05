@@ -1,6 +1,8 @@
 Changelog
 
-0.2.3.1 (unreelased)
+0.2.3.1
+	Merged both settings windows into one window with tabs
+	Added tooltips for a few lines in the settings window
 	
 0.2.3
 	Thanks to github user @Rjoande for this:
