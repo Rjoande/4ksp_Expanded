@@ -1,3 +1,4 @@
+#if false
 using ClickThroughFix;
 using KSP.UI.Screens;
 using ToolbarControl_NS;
@@ -83,11 +84,11 @@ namespace _4kSP_ModWindows
 
         void OnToolbarTrue()
         {
-            _tmpEnabled = ModWindowScalerConfig.Enabled;
-            _tmpUseStock = ModWindowScalerConfig.UseStockUIScale;
-            _tmpScale = ModWindowScalerConfig.Scale;
-            _tmpKeepOnScreen = ModWindowScalerConfig.KeepOnScreen;
-            _tmpLogWindows = ModWindowScalerConfig.LogWindows;
+            _tmpEnabled = _4kSP_RnD.ModWindowScalerConfig.Enabled;
+            _tmpUseStock = _4kSP_RnD.ModWindowScalerConfig.UseStockUIScale;
+            _tmpScale = _4kSP_RnD.ModWindowScalerConfig.Scale;
+            _tmpKeepOnScreen = _4kSP_RnD.ModWindowScalerConfig.KeepOnScreen;
+            _tmpLogWindows = _4kSP_RnD.ModWindowScalerConfig.LogWindows;
             _windowShown = true;
         }
 
@@ -98,11 +99,11 @@ namespace _4kSP_ModWindows
 
         void ApplyTmp()
         {
-            ModWindowScalerConfig.Enabled = _tmpEnabled;
-            ModWindowScalerConfig.UseStockUIScale = _tmpUseStock;
-            ModWindowScalerConfig.Scale = _tmpScale;
-            ModWindowScalerConfig.KeepOnScreen = _tmpKeepOnScreen;
-            ModWindowScalerConfig.LogWindows = _tmpLogWindows;
+            _4kSP_RnD.ModWindowScalerConfig.Enabled = _tmpEnabled;
+            _4kSP_RnD.ModWindowScalerConfig.UseStockUIScale = _tmpUseStock;
+            _4kSP_RnD.ModWindowScalerConfig.Scale = _tmpScale;
+            _4kSP_RnD.ModWindowScalerConfig.KeepOnScreen = _tmpKeepOnScreen;
+            _4kSP_RnD.ModWindowScalerConfig.LogWindows = _tmpLogWindows;
         }
 
         void OnGUI()
@@ -119,7 +120,7 @@ namespace _4kSP_ModWindows
 
             // Only flag the Difficulty Settings toggle specifically - if
             // the checkbox right below is what's off, that's self-evident.
-            if (ModWindowScalerConfig.Enabled && !ModWindowScalerConfig.EffectiveEnabled)
+            if (_4kSP_RnD.ModWindowScalerConfig.Enabled && !_4kSP_RnD.ModWindowScalerConfig.EffectiveEnabled)
                 GUILayout.Label("<i>Disabled in Difficulty Settings (\"Enable Mod Window Scaler\").</i>");
 
             _tmpEnabled = GUILayout.Toggle(_tmpEnabled, "Enabled");
@@ -130,7 +131,7 @@ namespace _4kSP_ModWindows
             GUILayout.BeginHorizontal();
             GUILayout.Label(string.Format("Scale: {0:F2}", _tmpScale), GUILayout.Width(150));
             _tmpScale = GUILayout.HorizontalSlider(_tmpScale,
-                ModWindowScalerConfig.MinScale, ModWindowScalerConfig.MaxScale,
+                _4kSP_RnD.ModWindowScalerConfig.MinScale, _4kSP_RnD.ModWindowScalerConfig.MaxScale,
                 GUILayout.Width(150));
             GUILayout.EndHorizontal();
             GUI.enabled = true;
@@ -157,17 +158,17 @@ namespace _4kSP_ModWindows
             if (GUILayout.Button("Save"))
             {
                 ApplyTmp();
-                ModWindowScalerConfig.Save();
+                _4kSP_RnD.ModWindowScalerConfig.Save();
             }
 
             if (GUILayout.Button("Default"))
             {
-                ModWindowScalerConfig.ResetDefaults();
-                _tmpEnabled = ModWindowScalerConfig.Enabled;
-                _tmpUseStock = ModWindowScalerConfig.UseStockUIScale;
-                _tmpScale = ModWindowScalerConfig.Scale;
-                _tmpKeepOnScreen = ModWindowScalerConfig.KeepOnScreen;
-                _tmpLogWindows = ModWindowScalerConfig.LogWindows;
+                _4kSP_RnD.ModWindowScalerConfig.ResetDefaults();
+                _tmpEnabled = _4kSP_RnD.ModWindowScalerConfig.Enabled;
+                _tmpUseStock = _4kSP_RnD.ModWindowScalerConfig.UseStockUIScale;
+                _tmpScale = _4kSP_RnD.ModWindowScalerConfig.Scale;
+                _tmpKeepOnScreen = _4kSP_RnD.ModWindowScalerConfig.KeepOnScreen;
+                _tmpLogWindows = _4kSP_RnD.ModWindowScalerConfig.LogWindows;
             }
 
             if (GUILayout.Button("Close"))
@@ -183,3 +184,4 @@ namespace _4kSP_ModWindows
         }
     }
 }
+#endif

@@ -18,7 +18,7 @@ namespace _4kSP_ModWindows
 
         void Start()
         {
-            try { ModWindowScalerConfig.Load(); }
+            try { _4kSP_RnD.ModWindowScalerConfig.Load(); }
             catch (Exception e) { Debug.LogError(TAG + " Load err: " + e); }
 
             if (_patched) return;
@@ -82,7 +82,7 @@ namespace _4kSP_ModWindows
             __state.Applied = false;
             try
             {
-                if (!ModWindowScalerConfig.EffectiveEnabled)
+                if (!_4kSP_RnD.ModWindowScalerConfig.EffectiveEnabled)
                     return;
 
                 // Already scaled by an outer call (or by the mod itself):
@@ -103,9 +103,9 @@ namespace _4kSP_ModWindows
                 if (asm == null || asm.StartsWith("UnityEngine", StringComparison.Ordinal))
                     return;
 
-                float s = ModWindowScalerConfig.ScaleFor(asm);
+                float s = _4kSP_RnD.ModWindowScalerConfig.ScaleFor(asm);
 
-                if (ModWindowScalerConfig.LogWindows && loggedAssemblies.Add(asm))
+                if (_4kSP_RnD.ModWindowScalerConfig.LogWindows && loggedAssemblies.Add(asm))
                     Debug.Log("[4kSP-ModWindows] window from assembly '" + asm
                         + "' (requested scale: " + s.ToString("0.##") + ")");
 
@@ -121,7 +121,7 @@ namespace _4kSP_ModWindows
                 // effective scale just enough to fit instead of overflowing.
                 // Never shrinks below 1x: at that point the window is simply
                 // left untouched, same as if it were excluded via config.
-                if (ModWindowScalerConfig.KeepOnScreen && s > 1f)
+                if (_4kSP_RnD.ModWindowScalerConfig.KeepOnScreen && s > 1f)
                 {
                     float w = Mathf.Max(__1.width, 1f);
                     float h = Mathf.Max(__1.height, 1f);
@@ -134,7 +134,7 @@ namespace _4kSP_ModWindows
                     return;
 
                 float dx = 0f, dy = 0f;
-                if (ModWindowScalerConfig.KeepOnScreen)
+                if (_4kSP_RnD.ModWindowScalerConfig.KeepOnScreen)
                 {
                     float right = __1.x + __1.width * s;
                     float bottom = __1.y + __1.height * s;

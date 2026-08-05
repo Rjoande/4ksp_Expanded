@@ -28,7 +28,7 @@ namespace _4kSP_RnD
         private GameObject     _toolbarGO;
         private bool   _windowShown;
         private int    _windowId;
-        private Rect   _windowRect = new Rect(200, 200, 360, 220);
+        private Rect   _windowRect = new Rect(200, 200, 400, 220);
 
         private float _tmpMaxZoom;
         private float _tmpPartsScale;
@@ -316,11 +316,26 @@ namespace _4kSP_RnD
                 TB_TOOLTIP);
         }
 
+        private bool _tmpEnabled;
+        private bool _tmpUseStock;
+        private float _tmpScale;
+        private bool _tmpKeepOnScreen;
+        private bool _tmpLogWindows;
+
+
         void OnToolbarTrue()
         {
             _tmpMaxZoom    = RDScalerConfig.MaxZoom;
             _tmpPartsScale = RDScalerConfig.PartsScale;
             _windowShown   = true;
+
+             ModWindowScalerConfig.Load();
+            _tmpEnabled = ModWindowScalerConfig.Enabled;
+            _tmpUseStock = ModWindowScalerConfig.UseStockUIScale;
+            _tmpScale = ModWindowScalerConfig.Scale;
+            _tmpKeepOnScreen = ModWindowScalerConfig.KeepOnScreen;
+            _tmpLogWindows = ModWindowScalerConfig.LogWindows;
+
         }
 
         void OnToolbarFalse()
@@ -328,12 +343,55 @@ namespace _4kSP_RnD
             _windowShown = false;
         }
 
+        void ApplyTmp()
+        {
+            _4kSP_RnD.ModWindowScalerConfig.Enabled = _tmpEnabled;
+            _4kSP_RnD.ModWindowScalerConfig.UseStockUIScale = _tmpUseStock;
+            _4kSP_RnD.ModWindowScalerConfig.Scale = _tmpScale;
+            _4kSP_RnD.ModWindowScalerConfig.KeepOnScreen = _tmpKeepOnScreen;
+            _4kSP_RnD.ModWindowScalerConfig.LogWindows = _tmpLogWindows;
+        }
+
         void OnGUI()
         {
             if (!_windowShown) return;
             GUI.skin = HighLogic.Skin;
             _windowRect = ClickThruBlocker.GUILayoutWindow(
-                _windowId, _windowRect, DrawWindow, "4kSP R&D Scaler");
+                _windowId, _windowRect, DrawWindow, "4kSP Scaler");
+        }
+
+        private GUIStyle horizontalLineStyle = null;
+
+        private void InitializeStyles()
+        {
+            horizontalLineStyle = new GUIStyle
+            {
+                normal =
+                {
+                    background = Texture2D.whiteTexture
+                },
+                margin = new RectOffset(0, 0, 5, 5),
+                fixedHeight = 1
+            };
+        }
+
+        private void DrawHorizontalLine(float space, float thickness = 1f)
+        {
+            if (horizontalLineStyle == null)
+                InitializeStyles();
+            Color previousColor = GUI.color;
+
+            GUI.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            GUILayout.Space(space);
+            GUILayout.Box(
+                GUIContent.none,
+                horizontalLineStyle,
+                GUILayout.ExpandWidth(true),
+                GUILayout.Height(thickness)
+            );
+            GUILayout.Space(space);
+
+            GUI.color = previousColor;
         }
 
         void DrawWindow(int id)
@@ -341,10 +399,10 @@ namespace _4kSP_RnD
             GUILayout.BeginVertical();
 
             if (!ScalerEnabled)
-                GUILayout.Label("<i>Disabled in Difficulty Settings (\"Enable R&amp;D Scaler\").</i>");
+                GUILayout.Label("<i>Disabled in Difficulty Settings (\"Enable R & D Scaler\").</i>");
 
             GUI.enabled = ScalerEnabled;
-
+            GUILayout.Label("<color=yellow><b>R & D Scaling</b></color>");
             GUILayout.BeginHorizontal();
             GUILayout.Label(string.Format("Max Zoom: {0:F2}", _tmpMaxZoom),
                 GUILayout.Width(150));
@@ -378,11 +436,44 @@ namespace _4kSP_RnD
             GUILayout.Space(8);
 
             if (!_inRnD)
-                GUILayout.Label("<i>Enter the R&amp;D Complex to see live changes.</i>");
+                GUILayout.Label("<i>Enter the R & D Complex to see live changes.</i>");
             else
                 GUILayout.Label("<b>Live changes active</b>");
 
+            DrawHorizontalLine(4);
+            GUILayout.Label("<color=yellow><b>Mod Window Scaling</b></color>");
+            // Only flag the Difficulty Settings toggle specifically - if
+            // the checkbox right below is what's off, that's self-evident.
+            if (ModWindowScalerConfig.Enabled && !ModWindowScalerConfig.EffectiveEnabled)
+                GUILayout.Label("<i>Disabled in Difficulty Settings (\"Enable Mod Window Scaler\").</i>");
+
+            _tmpEnabled = GUILayout.Toggle(_tmpEnabled, "Enabled");
+
+            _tmpUseStock = GUILayout.Toggle(_tmpUseStock, "Use stock UI Scale");
+
+            GUI.enabled = !_tmpUseStock;
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(string.Format("Scale: {0:F2}", _tmpScale), GUILayout.Width(150));
+            _tmpScale = GUILayout.HorizontalSlider(_tmpScale,
+                ModWindowScalerConfig.MinScale, ModWindowScalerConfig.MaxScale,
+                GUILayout.Width(150));
+            GUILayout.EndHorizontal();
+            GUI.enabled = true;
+
+            _tmpKeepOnScreen = GUILayout.Toggle(_tmpKeepOnScreen,
+                "Keep windows on screen (auto-shrinks windows that don't fit even scaled)");
+
+            _tmpLogWindows = GUILayout.Toggle(_tmpLogWindows,
+                "Log every mod that opens a window (KSP.log) - use this to find the\n"
+                + "assembly name for an OVERRIDE / exclude entry");
+
+            GUILayout.Space(20);
+            GUILayout.Label("<i>Per-mod overrides and excludes are set in\n"
+                + "GameData/4kSP/PluginData/ModWindowScaler.cfg</i>");
+
+
             GUILayout.Space(8);
+            GUILayout.FlexibleSpace();  
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Apply"))
@@ -390,6 +481,7 @@ namespace _4kSP_RnD
                 RDScalerConfig.MaxZoom    = _tmpMaxZoom;
                 RDScalerConfig.PartsScale = _tmpPartsScale;
                 if (_inRnD) ApplyAll();
+                ApplyTmp();
             }
 
             if (GUILayout.Button("Save"))
@@ -398,6 +490,13 @@ namespace _4kSP_RnD
                 RDScalerConfig.PartsScale = _tmpPartsScale;
                 if (_inRnD) ApplyAll();
                 RDScalerConfig.Save();
+                ModWindowScalerConfig.Enabled = _tmpEnabled;
+                ModWindowScalerConfig.UseStockUIScale = _tmpUseStock;
+                ModWindowScalerConfig.Scale = _tmpScale;
+                ModWindowScalerConfig.KeepOnScreen = _tmpKeepOnScreen;
+                ModWindowScalerConfig.LogWindows = _tmpLogWindows;
+                ModWindowScalerConfig.Save();
+                ApplyTmp();
             }
 
             if (GUILayout.Button("Default"))

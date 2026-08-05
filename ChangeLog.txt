@@ -1,5 +1,7 @@
 Changelog
 
+0.2.3.1 (unreelased)
+	
 0.2.3
 	Thanks to github user @Rjoande for this:
 		Add automatic scaling to all windows.  Requires Harmony to work

@@ -1,11 +1,10 @@
-#if false
 using System;
 using System.Collections.Generic;
 using System.IO;
 using FourkSP;
 using UnityEngine;
 
-namespace _4kSP_ModWindows
+namespace _4kSP_RnD
 {
     // Persists the mod-window scaler settings to
     // GameData/4kSP/PluginData/ModWindowScaler.cfg using KSP's native
@@ -190,4 +189,3 @@ namespace _4kSP_ModWindows
         }
     }
 }
-#endif
