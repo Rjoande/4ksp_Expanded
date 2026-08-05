@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using KSP.UI.Screens;
 using ToolbarControl_NS;
 using ClickThroughFix;
+using FourkSP;
 
 namespace _4kSP_RnD
 {
@@ -44,6 +45,7 @@ namespace _4kSP_RnD
 
             GameEvents.onGUIRnDComplexSpawn.Add(OnRnDSpawn);
             GameEvents.onGUIRnDComplexDespawn.Add(OnRnDDespawn);
+            GameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
 
             AddToolbarButton();
         }
@@ -52,12 +54,37 @@ namespace _4kSP_RnD
         {
             GameEvents.onGUIRnDComplexSpawn.Remove(OnRnDSpawn);
             GameEvents.onGUIRnDComplexDespawn.Remove(OnRnDDespawn);
+            GameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
 
             if (_toolbarGO != null)
             {
                 Destroy(_toolbarGO);
                 _toolbarGO = null;
                 _toolbar   = null;
+            }
+        }
+
+        // Fires when the player closes the Difficulty Settings dialog with
+        // changes applied - including toggling "Enable R&D Scaler". Only
+        // acts while actually inside the R&D complex; ApplyAll() itself
+        // decides whether that means scaling up or reverting to stock.
+        void OnGameSettingsApplied()
+        {
+            if (_inRnD) ApplyAll();
+        }
+
+        // True unless the player turned the scaler off in Difficulty
+        // Settings (Section "4kSP" - see FourkSP._4kSP.rdScalerEnabled).
+        // Defaults to enabled if there's no active game yet, which in
+        // practice never happens here since this whole component only
+        // runs inside the R&D complex of a loaded save.
+        internal static bool ScalerEnabled
+        {
+            get
+            {
+                var game = HighLogic.CurrentGame;
+                if (game == null) return true;
+                return game.Parameters.CustomParams<_4kSP>().rdScalerEnabled;
             }
         }
 
@@ -85,6 +112,11 @@ namespace _4kSP_RnD
 
         void ApplyAll()
         {
+            if (!ScalerEnabled)
+            {
+                ResetToStock();
+                return;
+            }
             PatchZoomLimit();
             ScalePartsGrid();
         }
@@ -95,7 +127,66 @@ namespace _4kSP_RnD
             var grid = rd != null ? rd.gridArea : null;
             if (grid == null) return;
 
+            if (!_baseZoomCached)
+            {
+                _baseZoomMax = grid.zoomMax;
+                _baseZoomCached = true;
+            }
+
             grid.zoomMax = RDScalerConfig.MaxZoom;
+        }
+
+        // Undoes everything ApplyAll() does: restores the stock zoom cap,
+        // GridLayoutGroup geometry and tile scale. Called when the scaler
+        // is turned off (OnGameSettingsApplied) and, harmlessly, on entry
+        // to the R&D complex when it was never turned on this session -
+        // in that case _baseZoomCached/_baseGridCached are still false so
+        // the zoom/grid writes are skipped, and the tile loop just sets
+        // localScale to the Vector3.one it already was.
+        void ResetToStock()
+        {
+            var rd = RDController.Instance;
+            if (rd == null) return;
+
+            if (_baseZoomCached)
+            {
+                var grid = rd.gridArea;
+                if (grid != null) grid.zoomMax = _baseZoomMax;
+            }
+
+            if (rd.partList == null) return;
+            var mask = rd.partList.partTransformMask;
+            if (mask == null) return;
+
+            if (_baseGridCached)
+            {
+                var glg = mask.GetComponent<GridLayoutGroup>()
+                          ?? mask.GetComponentInChildren<GridLayoutGroup>(true);
+                if (glg != null)
+                {
+                    glg.cellSize        = _baseCell;
+                    glg.spacing         = _baseSpacing;
+                    glg.constraint      = _baseConstraint;
+                    glg.constraintCount = _baseConstraintCount;
+                    glg.padding = new RectOffset(
+                        _basePadding.left, _basePadding.right,
+                        _basePadding.top,  _basePadding.bottom);
+                }
+            }
+
+            var items = rd.partList.listItems;
+            if (items != null)
+            {
+                for (int i = 0; i < items.Count; i++)
+                {
+                    var it = items[i];
+                    if (it == null || it.transform == null) continue;
+                    var wrapper = it.transform.parent;
+                    if (wrapper != null) wrapper.localScale = Vector3.one;
+                }
+            }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(mask as RectTransform);
         }
 
         // Tile hierarchy under RDPartList.partTransformMask:
@@ -188,6 +279,10 @@ namespace _4kSP_RnD
         private static RectOffset _basePadding;
         private static bool _baseGridCached;
 
+        // Same idea, for the tech tree zoom cap touched by PatchZoomLimit().
+        private static float _baseZoomMax;
+        private static bool _baseZoomCached;
+
         private static void CacheGridBase(GridLayoutGroup glg)
         {
             if (_baseGridCached) return;
@@ -245,6 +340,11 @@ namespace _4kSP_RnD
         {
             GUILayout.BeginVertical();
 
+            if (!ScalerEnabled)
+                GUILayout.Label("<i>Disabled in Difficulty Settings (\"Enable R&amp;D Scaler\").</i>");
+
+            GUI.enabled = ScalerEnabled;
+
             GUILayout.BeginHorizontal();
             GUILayout.Label(string.Format("Max Zoom: {0:F2}", _tmpMaxZoom),
                 GUILayout.Width(150));
@@ -272,6 +372,8 @@ namespace _4kSP_RnD
                 if (_inRnD) ApplyAll();
             }
             GUILayout.EndHorizontal();
+
+            GUI.enabled = true;
 
             GUILayout.Space(8);
 
