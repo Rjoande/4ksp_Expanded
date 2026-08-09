@@ -323,6 +323,9 @@ namespace _4kSP_RnD
         private bool _tmpKeepOnScreen;
         private bool _tmpLogWindows;
 
+        private bool _showDetected = true;
+        private Vector2 _detectedScroll;
+
 
         void OnToolbarTrue()
         {
@@ -582,9 +585,12 @@ namespace _4kSP_RnD
                     _tmpLogWindows = GUILayout.Toggle(_tmpLogWindows, new GUIContent(
                         "Log windows to KSP.log",
                         "Use this to find the assembly name for an OVERRIDE / exclude entry"));
-                    GUILayout.Space(20);
-                    GUILayout.Label("<i>Per-mod overrides and excludes are set in\n"
-                        + "GameData/4kSP/PluginData/ModWindowScaler.cfg</i>");
+
+                    GUILayout.Space(8);
+                    _showDetected = GUILayout.Toggle(_showDetected,
+                        "Detected mod windows (" + ModWindowScalerConfig.Detected.Count + ")");
+                    if (_showDetected)
+                        DrawDetectedMods();
                     break;
             }
 
@@ -637,6 +643,38 @@ namespace _4kSP_RnD
 
             GUI.DragWindow();
             SetTooltipText();
+        }
+
+        // One row per assembly seen opening a window this session (see
+        // ModWindowScalerConfig.TrackWindow), with a checkbox to exclude
+        // it. Toggling takes effect immediately (Overrides is read live by
+        // Patch_IMGUI_Window in 4kSP-ModWindows.dll); hit "Save" above to
+        // persist it to disk.
+        void DrawDetectedMods()
+        {
+            var detected = ModWindowScalerConfig.Detected;
+            if (detected.Count == 0)
+            {
+                GUILayout.Label("<i>No mod windows seen yet this session.</i>");
+                return;
+            }
+
+            _detectedScroll = GUILayout.BeginScrollView(_detectedScroll, GUILayout.Height(140));
+            for (int i = 0; i < detected.Count; i++)
+            {
+                var d = detected[i];
+                GUILayout.BeginHorizontal();
+
+                bool excluded = ModWindowScalerConfig.IsExcluded(d.Assembly);
+                bool newExcluded = GUILayout.Toggle(excluded, "Exclude", GUILayout.Width(70));
+                if (newExcluded != excluded)
+                    ModWindowScalerConfig.SetExcluded(d.Assembly, newExcluded);
+
+                GUILayout.Label(d.Assembly + "  (" + d.LastRequestedScale.ToString("0.##") + "x)");
+
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndScrollView();
         }
     }
 }
