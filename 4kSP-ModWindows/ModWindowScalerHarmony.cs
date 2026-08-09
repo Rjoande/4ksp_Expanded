@@ -105,6 +105,8 @@ namespace _4kSP_ModWindows
 
                 float s = _4kSP_RnD.ModWindowScalerConfig.ScaleFor(asm);
 
+                _4kSP_RnD.ModWindowScalerConfig.TrackWindow(asm, s);
+
                 if (_4kSP_RnD.ModWindowScalerConfig.LogWindows && loggedAssemblies.Add(asm))
                     Debug.Log("[4kSP-ModWindows] window from assembly '" + asm
                         + "' (requested scale: " + s.ToString("0.##") + ")");
